@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4a86e8">
+    <title>Kombi Generator</title>
+
+    <!-- Icons & Manifest -->
+    <link rel="icon" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="manifest" href="manifest.json">
+
+    <!-- iOS Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="KombiGen">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(to bottom, #1a2a6c, #4a86e8);
+            color: #333;
+            min-height: 100vh;
+            padding: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+            width: 100%;
+            max-width: 100%;
+            padding: 2px;
+            margin-top: 15px;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            font-size: 1.7rem;
+            margin: 10px 0 5px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        h2 {
+            color: white;
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            font-weight: normal;
+        }
+        
+        .number-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+            padding: 7px 0px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        
+        .number {
+            display: inline-block;
+            min-width: 26px;
+            text-align: center;
+            padding: 3px;
+            margin: 0 1px;
+        }
+        
+        .placeholder {
+            color: #999;
+        }
+        
+        button {
+            background: linear-gradient(to right, #4a86e8, #3a66b8);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 14px 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin-top: 5px;
+        }
+        
+        button:hover {
+            background: linear-gradient(to right, #3a66b8, #2a56a8);
+        }
+        
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .loading {
+            text-align: center;
+            color: white;
+            margin-top: 10px;
+        }
+        
+        @media (max-width: 400px) {
+            .number {
+                min-width: 22px;
+                font-size: 0.9rem;
+            }
+            
+            h1 {
+                font-size: 1.4rem;
+            }
+            
+            h2 {
+                font-size: 1.1rem;
+            }
+            
+            button {
+                padding: 12px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+</head>
+<body>
+    <h1>13-11 Kombinationen Generator</h1>
+    <h2 id="blockNumber">Block #</h2>
+    
+    <div class="container">
+        <div class="number-row" id="row1"></div>
+        <div class="number-row" id="row2"></div>
+        <div class="number-row" id="row3"></div>
+        <div class="number-row" id="row4"></div>
+        
+        <button id="generateBtn">Neuen Block generieren</button>
+    </div>
+    
+    <div id="loading" class="loading"></div>
+
+    <script>
+        console.log('App wird gestartet');
+        document.addEventListener('DOMContentLoaded', function() {
+            const generateBtn = document.getElementById('generateBtn');
+            const blockNumber = document.getElementById('blockNumber');
+            const loading = document.getElementById('loading');
+            const rows = [
+                document.getElementById('row1'),
+                document.getElementById('row2'),
+                document.getElementById('row3'),
+                document.getElementById('row4')
+            ];
+            
+            // Konfiguration
+            const TOTAL_BLOCKS = 1000000;
+            const CHUNK_SIZE = 100000;
+            const CHUNKS = 10;
+            
+            // Cache für geladene Chunks
+            const loadedChunks = {};
+            
+            // Initialen Block laden
+            generateRandomBlock();
+            
+            generateBtn.addEventListener('click', generateRandomBlock);
+            
+            function generateRandomBlock() {
+                const randomBlockNum = Math.floor(Math.random() * TOTAL_BLOCKS) + 1;
+                loadBlock(randomBlockNum);
+            }
+            
+            async function loadBlock(blockNum) {
+                try {
+                    loading.textContent = "Lade Block...";
+                    generateBtn.disabled = true;
+                    
+                    const chunkIndex = Math.floor((blockNum - 1) / CHUNK_SIZE);
+                    const blockIndex = (blockNum - 1) % CHUNK_SIZE;
+                    
+                    if (!loadedChunks[chunkIndex]) {
+                        loading.textContent = `Lade Chunk ${chunkIndex + 1}/10...`;
+                        
+                        // Relative Pfade für Netlify
+                        const response = await fetch(`data/blocks_${chunkIndex}.json`);
+                        
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        
+                        loadedChunks[chunkIndex] = await response.json();
+                    }
+                    
+                    displayBlock(loadedChunks[chunkIndex][blockIndex], blockNum);
+                    
+                } catch (error) {
+                    console.warn("Netzwerkfehler - Verwende lokale Generierung:", error.message);
+                    loading.textContent = "Verwende lokale Generierung...";
+                    generateLocalBlock();
+                } finally {
+                    generateBtn.disabled = false;
+                    setTimeout(() => loading.textContent = "", 2000);
+                }
+            }
+            
+            function generateLocalBlock() {
+                // Array mit Zahlen 1-50 erstellen und mischen
+                let numbers = Array.from({length: 50}, (_, i) => i + 1);
+                shuffleArray(numbers);
+                
+                // Reihen 1-3 (je 13 Zahlen)
+                for (let i = 0; i < 3; i++) {
+                    const start = i * 13;
+                    const rowNumbers = numbers.slice(start, start + 13);
+                    rows[i].innerHTML = formatNumbers(rowNumbers);
+                }
+                
+                // Reihe 4 (11 Zahlen + 2 Platzhalter)
+                const row4Numbers = numbers.slice(39, 50);
+                rows[3].innerHTML = formatNumbers(row4Numbers) + 
+                    '<span class="number placeholder">-</span>' +
+                    '<span class="number placeholder">-</span>';
+                
+                blockNumber.textContent = `Block #${Math.floor(Math.random() * 1000000) + 1}`;
+            }
+            
+            function displayBlock(block, blockNum) {
+                blockNumber.textContent = `Block #${blockNum}`;
+                
+                for (let i = 0; i < 3; i++) {
+                    const start = i * 13;
+                    const rowNumbers = block.slice(start, start + 13);
+                    rows[i].innerHTML = formatNumbers(rowNumbers);
+                }
+                
+                const row4Numbers = block.slice(39, 50);
+                rows[3].innerHTML = formatNumbers(row4Numbers) + 
+                    '<span class="number placeholder">-</span>' +
+                    '<span class="number placeholder">-</span>';
+            }
+            
+            function formatNumbers(numbers) {
+                return numbers.map(num => 
+                    `<span class="number">${num.toString().padStart(2, '0')}</span>`
+                ).join('');
+            }
+            
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+        });
+        
+        // Service Worker mit Fehlerbehandlung
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(registration => {
+                    console.log('Service Worker registriert:', registration);
+                })
+                .catch(error => {
+                    console.warn('Service Worker Registrierung fehlgeschlagen:', error);
+                });
+            }
+            async function loadBlock(blockNum) {
+        try {
+        loading.textContent = "Lade Block...";
+        generateBtn.disabled = true;
+        
+        const chunkIndex = Math.floor((blockNum - 1) / CHUNK_SIZE);
+        const blockIndex = (blockNum - 1) % CHUNK_SIZE;
+        
+        if (!loadedChunks[chunkIndex]) {
+            loading.textContent = `Lade Chunk ${chunkIndex + 1}/10...`;
+            const response = await fetch(`data/blocks_${chunkIndex}.json`);
+            
+            if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            loadedChunks[chunkIndex] = await response.json();
+        }
+        
+        displayBlock(loadedChunks[chunkIndex][blockIndex], blockNum);
+        
+        } catch (error) {
+        console.error("Fehler beim Laden:", error);
+        loading.textContent = "Fehler: Daten konnten nicht geladen werden";
+        // Fehlermeldung in den Blöcken anzeigen
+        rows.forEach(row => {
+            row.innerHTML = '<span class="number placeholder">Fehler</span>'.repeat(13);
+        });
+        } finally {
+        generateBtn.disabled = false;
+        setTimeout(() => loading.textContent = "", 3000);
+        }
+    }
+    </script>
+</body>
+</html>
