@@ -198,8 +198,23 @@
                     if (!loadedChunks[chunkIndex]) {
                         loading.textContent = `Lade Chunk ${chunkIndex + 1}/10...`;
                         
-                        // Relative Pfade für Netlify
-                        const response = await fetch(`data/blocks_${chunkIndex}.json`);
+                        // Google Drive Datei-IDs
+                        const driveFileIds = [
+                            '191kwYzsM_sf9DKoUyIUwzVk5IxjmGD8w',  // blocks_0
+                            '1_Tr2jqjanexUcW2az7xjjdvdmgNzt9xS',  // blocks_1
+                            '1og6z-8zv-a2-sWvLjJo-40hy_SjXbhz0',  // blocks_2
+                            '1guu49bAA4kNknFzc87nmtWk9aq4g-KJ6',  // blocks_3
+                            '1HyxAnMLt_R5Ug3hQKCSSCkpV1Rtev_VI',  // blocks_4
+                            '14vxWxjK_KX-v1pPeOfHJjKBbGyRYLUP9',  // blocks_5
+                            '18k9Kt7yaM49f2eCtmsNpCljS6CgnOVNm',  // blocks_6
+                            '18DgYsSPo_1WTgrjuqnc-C2eupwWISU_c',  // blocks_7
+                            '1NFIj8jj1fDHtm_gtm1L1-R_0Z96HUa1t',  // blocks_8
+                            '1HyFX8wKbf5lF4N4ngaO_kKKVMz53gvlt'   // blocks_9
+                        ];
+                        
+                        const response = await fetch(
+                            `https://drive.google.com/uc?export=download&id=${driveFileIds[chunkIndex]}`
+                        );
                         
                         if (!response.ok) {
                             throw new Error(`HTTP error! status: ${response.status}`);
@@ -211,14 +226,18 @@
                     displayBlock(loadedChunks[chunkIndex][blockIndex], blockNum);
                     
                 } catch (error) {
-                    console.warn("Netzwerkfehler - Verwende lokale Generierung:", error.message);
-                    loading.textContent = "Verwende lokale Generierung...";
-                    generateLocalBlock();
+                    console.error("Fehler beim Laden:", error);
+                    loading.textContent = "Daten konnten nicht geladen werden";
+                    
+                    // Zeige klare Fehlermeldung
+                    rows.forEach(row => {
+                        row.innerHTML = '<span class="number error">ERR</span>'.repeat(13);
+                    });
                 } finally {
                     generateBtn.disabled = false;
-                    setTimeout(() => loading.textContent = "", 2000);
+                    setTimeout(() => loading.textContent = "", 3000);
                 }
-            }
+            }   
             
             function generateLocalBlock() {
                 // Array mit Zahlen 1-50 erstellen und mischen

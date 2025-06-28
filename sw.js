@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kombi-generator-final-v3';
+const CACHE_NAME = 'kombi-generator-final-v4';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -15,8 +15,8 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Umgehe Service Worker für Datenanfragen
-  if (event.request.url.includes('/data/')) {
+  // Umgehe Service Worker für Google Drive Anfragen
+  if (event.request.url.includes('google.com/uc')) {
     return;
   }
   
