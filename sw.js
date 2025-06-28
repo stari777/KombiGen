@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kombi-generator-final-v2';
+const CACHE_NAME = 'kombi-generator-final-v3';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -10,13 +10,7 @@ const urlsToCache = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Caching statische Assets');
-        return cache.addAll(STATIC_ASSETS);
-      })
-      .catch(err => {
-        console.warn('Fehler beim Caching:', err);
-      })
+      .then(cache => cache.addAll(urlsToCache))
   );
 });
 
