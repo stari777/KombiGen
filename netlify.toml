@@ -1,2 +1,11 @@
 [build]
   publish = "."
+  command = "echo 'Kein Build nötig'"
+
+[build.processing]
+  skip_processing = true  # Deaktiviert unnötige Optimierungen
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
