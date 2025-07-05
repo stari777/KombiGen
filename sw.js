@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kombi-generator-final-v5';
+const CACHE_NAME = 'kombi-generator-final-v6';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -15,8 +15,8 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Umgehe Service Worker für CORS-Proxys
-  if (event.request.url.includes('corsproxy.io') || 
+  // Umgehe Service Worker für Proxy-Anfragen
+  if (event.request.url.includes('allorigins.win') || 
       event.request.url.includes('google.com/uc')) {
     return fetch(event.request);
   }
