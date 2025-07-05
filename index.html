@@ -196,16 +196,17 @@
                     const chunkIndex = Math.floor((blockNum - 1) / CHUNK_SIZE);
                     const blockIndex = (blockNum - 1) % CHUNK_SIZE;
                     
-                    if (!loadedChunks[chunkIndex]) {
+                     if (!loadedChunks[chunkIndex]) {
                         loading.textContent = `Lade Chunk ${chunkIndex + 1}/${CHUNKS}...`;
                         
-                        // Direkter Zugriff auf die lokale Datei
-                        const response = await fetch(`data/blocks_${chunkIndex}.json`);
+                        // Füge führende Null hinzu für einstellige Zahlen
+                        const paddedIndex = chunkIndex.toString().padStart(2, '0');
+                        const response = await fetch(`data/block_${paddedIndex}.json`);
                         
                         if (!response.ok) {
                             throw new Error(`HTTP-Fehler! Status: ${response.status}`);
                         }
-                        
+            
                         loadedChunks[chunkIndex] = await response.json();
                     }
                     

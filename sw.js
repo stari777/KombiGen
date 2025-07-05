@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kombi-generator-final-v7';
+const CACHE_NAME = 'kombi-generator-final-v8';
 const urlsToCache = [
   '/',
   '/index.html',
