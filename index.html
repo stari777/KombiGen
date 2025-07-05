@@ -200,7 +200,7 @@
                         loading.textContent = `Lade Chunk ${chunkIndex + 1}/${CHUNKS}...`;
                         
                         // Direkter Zugriff auf die lokale Datei
-                        const response = await fetch(`data/block_${chunkIndex}.json`);
+                        const response = await fetch(`data/blocks_${chunkIndex}.json`);
                         
                         if (!response.ok) {
                             throw new Error(`HTTP-Fehler! Status: ${response.status}`);
