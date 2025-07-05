@@ -201,7 +201,7 @@
                         
                         // Füge führende Null hinzu für einstellige Zahlen
                         const paddedIndex = chunkIndex.toString().padStart(2, '0');
-                        const response = await fetch(`data/block_${paddedIndex}.json`);
+                        const response = await fetch(`data/blocks_${paddedIndex}.json`);
                         
                         if (!response.ok) {
                             throw new Error(`HTTP-Fehler! Status: ${response.status}`);
